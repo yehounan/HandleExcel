@@ -633,7 +633,7 @@ public class WriteExcel {
             row.createCell(3).setCellValue(data.get(i).getName());
             row.createCell(4).setCellValue(data.get(i).getAttendanceDays());
             row.createCell(5).setCellValue(data.get(i).getActualChuqinDays());//实际出勤天数
-            row.createCell(6).setCellValue(Math.floor(data.get(i).getActualChuqinDays()));//实际出勤天数去掉小数点
+            row.createCell(6).setCellValue(Math.floor(data.get(i).getActualChuqinDays() + 0.4));//实际出勤天数去掉小数点
             row.createCell(7).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
             row.createCell(8).setCellValue("");//备注
         }

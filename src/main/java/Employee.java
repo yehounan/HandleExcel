@@ -106,12 +106,14 @@ public class Employee {
      * @return 计算请假扣款
      */
     public BigDecimal getQingjiaKouKuan() {
+        BigDecimal temp = BigDecimal.ZERO;
         if (this.leavedays <= 2) {
-            return this.baseSalary.divide(BigDecimal.valueOf(21.75), 2).multiply(BigDecimal.valueOf(this.leavedays));
+            temp = this.baseSalary.divide(BigDecimal.valueOf(21.75), 3, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(this.leavedays));
         } else {
-            return this.baseSalary.divide(BigDecimal.valueOf(21.75), 2).multiply(BigDecimal.valueOf(2))
-                    .add(this.assessmentSalary.divide(BigDecimal.valueOf(21.75), 2).multiply(BigDecimal.valueOf(this.leavedays - 2)));
+            temp = this.baseSalary.divide(BigDecimal.valueOf(21.75), 3, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(2))
+                    .add(this.assessmentSalary.divide(BigDecimal.valueOf(21.75), 3, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(this.leavedays - 2)));
         }
+        return temp.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     /**

@@ -48,9 +48,5 @@ public class SalaryTaxHelper {
         return temp;
     }
 
-    public static void main(String[] args) {
-        Double days = Math.floor((21.6 + 0.4));
-        System.out.println(days);
-    }
 
 }
