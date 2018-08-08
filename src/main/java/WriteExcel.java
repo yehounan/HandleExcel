@@ -36,6 +36,7 @@ public class WriteExcel {
             this.createMealAllowanceSheet(workBook, workBook.createSheet("餐补"));
             this.createDeductSheet(workBook, workBook.createSheet("其它扣款"));
             this.createOtherAllowanceSheet(workBook, workBook.createSheet("其它补贴"));
+            this.createPayRollSheet(workBook, workBook.createSheet("工资条"));
 
             workBook.write(new File(finalXlsxPath));
 
@@ -696,6 +697,78 @@ public class WriteExcel {
             }
         }
 
+    }
+
+    private void createPayRollSheet(HSSFWorkbook workBook, HSSFSheet sheet) {
+        Row title = sheet.createRow(0);
+        title.createCell(0).setCellValue("员工姓名");
+        title.createCell(1).setCellValue("员工工号");
+        title.createCell(2).setCellValue("年");
+        title.createCell(3).setCellValue("月");
+        title.createCell(4).setCellValue("应发工资");
+        title.createCell(5).setCellValue("备注");
+        title.createCell(6).setCellValue("基本工资");
+        title.createCell(7).setCellValue("岗位工资");
+        title.createCell(8).setCellValue("周末加班工资");
+        title.createCell(9).setCellValue("请假");
+        title.createCell(10).setCellValue("绩效评分");
+        title.createCell(11).setCellValue("考评后工资");
+        title.createCell(12).setCellValue("请假扣款");
+        title.createCell(13).setCellValue("全勤奖");
+        title.createCell(14).setCellValue("司龄津贴");
+        title.createCell(15).setCellValue("通讯补贴");
+        title.createCell(16).setCellValue("工作餐补");
+        title.createCell(17).setCellValue("总裁奖系数");
+        title.createCell(18).setCellValue("总裁奖");
+        title.createCell(19).setCellValue("其他扣款");
+        title.createCell(20).setCellValue("税前工资");
+        title.createCell(21).setCellValue("社保（公司）");
+        title.createCell(22).setCellValue("社保（个人）");
+        title.createCell(23).setCellValue("公积金（公司）");
+        title.createCell(24).setCellValue("公积金（个人）");
+        title.createCell(25).setCellValue("其他补发");
+        title.createCell(26).setCellValue("计税工资");
+        title.createCell(27).setCellValue("个税");
+        title.createCell(28).setCellValue("应发工资");
+
+        for (int i = 0; i < data.size(); i++) {
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(data.get(i).getName());
+            row.createCell(1).setCellValue(data.get(i).getEmpNo());
+            row.createCell(2).setCellValue(year);
+            row.createCell(3).setCellValue(month);
+            row.createCell(4).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(5).setCellValue(data.get(i).getRemarks());
+            row.createCell(6).setCellValue(data.get(i).getBaseSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(7).setCellValue(data.get(i).getPositionSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(8).setCellValue(data.get(i).getOvertimeSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(9).setCellValue(data.get(i).getLeavedays());
+            row.createCell(10).setCellValue(data.get(i).getScore());
+            row.createCell(11).setCellValue(data.get(i).getAssessmentSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(12).setCellValue(data.get(i).getQingjiaKouKuan().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(13).setCellValue(data.get(i).getFullReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(14).setCellValue(data.get(i).getAgeReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(15).setCellValue(data.get(i).getPhoneReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(16).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(17).setCellValue(data.get(i).getRewardRatio());
+            row.createCell(18).setCellValue(data.get(i).getZongcaiReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(19).setCellValue(data.get(i).getDeductingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(20).setCellValue(data.get(i).getShuiQianSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(25).setCellValue(data.get(i).getSubsidySalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(26).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(27).setCellValue(data.get(i).getCqTax().add(data.get(i).getChengduGeshui()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            row.createCell(28).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+        }
+
+        for (int i = 0; i < data.size() + 1; i++) {
+            for (int j = 0; j < 29; j++) {
+                sheet.getRow(i).getCell(j).setCellStyle(baseCellStyle(workBook));
+            }
+        }
     }
 
     private void setSheetTitle(HSSFWorkbook workBook, HSSFSheet sheet, int lastCol, String title) {
