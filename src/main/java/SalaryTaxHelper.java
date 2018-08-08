@@ -14,7 +14,7 @@ public class SalaryTaxHelper {
         double Quickdeduction = 0;
         if (taxbase <= 0)//低于个税起征点
         {
-            return salaryBeforeTax;
+            return 0;
         } else if (taxbase <= 1500) {
             Taxrate = 3;
             Quickdeduction = 0;
@@ -46,6 +46,11 @@ public class SalaryTaxHelper {
         String yearString = dFormat.format(num);
         Double temp = Double.valueOf(yearString);
         return temp;
+    }
+
+    public static void main(String[] args) {
+        Double days = Math.floor((21.6 + 0.4));
+        System.out.println(days);
     }
 
 }

@@ -155,24 +155,28 @@ public class Employee {
     }
 
     /**
-     * @return 重庆实发工资 = 计税工资 - 成都发放工资
+     * @return 重庆实发工资 = 计税工资 - 成都发放工资 - 重庆个税
      */
     public BigDecimal getActualChongQingSalary() {
-        return this.getJiShuiSalary().subtract(this.getChengduSalary());
+        return this.getJiShuiSalary().subtract(this.getChengduSalary()).subtract(this.getCqTax());
     }
 
     /**
      * @return 成都个税
      */
     public BigDecimal getChengduGeshui() {
+
         return BigDecimal.valueOf(SalaryTaxHelper.salaryTax(this.getChengduSalary().doubleValue()));
     }
 
     /**
+     * < .6  向下取整，否则向上取整
+     *
      * @return 计算当月餐补
      */
     public BigDecimal getCanbu() {
-        return BigDecimal.valueOf(15).multiply(BigDecimal.valueOf(Math.floor(this.getActualChuqinDays())));
+        Double days = Math.floor((this.getActualChuqinDays() + 0.4));
+        return BigDecimal.valueOf(15).multiply(BigDecimal.valueOf(days));
     }
 
     /**
