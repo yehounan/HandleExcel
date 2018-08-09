@@ -57,6 +57,6 @@ public class ReadExcel {
                 BigDecimal.valueOf(Double.valueOf(l.get(34).toString())), BigDecimal.valueOf(Double.valueOf(l.get(35).toString())),
                 l.get(36).toString(),
                 l.get(37).toString(),
-                BigDecimal.valueOf(Double.valueOf(l.get(38).toString())),BigDecimal.valueOf(Double.valueOf(l.get(39).toString())),BigDecimal.valueOf(Double.valueOf(l.get(40).toString())),BigDecimal.valueOf(Double.valueOf(l.get(41).toString())),BigDecimal.valueOf(Double.valueOf(l.get(42).toString())));
+                BigDecimal.valueOf(Double.valueOf(l.get(38).toString())), BigDecimal.valueOf(Double.valueOf(l.get(39).toString())), BigDecimal.valueOf(Double.valueOf(l.get(40).toString())), BigDecimal.valueOf(Double.valueOf(l.get(41).toString())), BigDecimal.valueOf(Double.valueOf(l.get(42).toString())), l.get(43).toString().equals("1") ? true : false);
     }
 }

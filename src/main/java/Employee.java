@@ -48,12 +48,13 @@ public class Employee {
     private BigDecimal phoneReward = BigDecimal.ZERO;//通讯补贴
     private BigDecimal gongjinjiGongsi = BigDecimal.ZERO;//公积金公司
     private BigDecimal gongjinjiGeren = BigDecimal.ZERO;//公积金个人
+    private boolean isSpecial;//是否特殊处理该员工数据
 
 
     public Employee() {
     }
 
-    public Employee(String empNo, String department, String position, String name, String remarks, BigDecimal hireSalary, BigDecimal baseSalary, BigDecimal positionSalary, BigDecimal overtimeSalary, BigDecimal assessmentSalary, double leavedays, double score, double rewardRatio, BigDecimal cqTax, double attendanceDays, double legalHolidays, double neglectDays, double shijia, double bingjia, double tiaoxiu, double hunjia, double sangjia, double chanjia, double gongshangjia, double nianjia, double jiaban, double chuchai, String chuchaiRemarks, String deductingProject, BigDecimal deductingSalary, String deductingRemarks, String subsidyProject, BigDecimal subsidySalary, String subsidyRemarks, BigDecimal shebaodanweiheji, BigDecimal shebaogerenheji, String grantRemarks, String bankCardNum, BigDecimal fullReward, BigDecimal ageReward, BigDecimal phoneReward, BigDecimal gongjinjiGongsi, BigDecimal gongjinjiGeren) {
+    public Employee(String empNo, String department, String position, String name, String remarks, BigDecimal hireSalary, BigDecimal baseSalary, BigDecimal positionSalary, BigDecimal overtimeSalary, BigDecimal assessmentSalary, double leavedays, double score, double rewardRatio, BigDecimal cqTax, double attendanceDays, double legalHolidays, double neglectDays, double shijia, double bingjia, double tiaoxiu, double hunjia, double sangjia, double chanjia, double gongshangjia, double nianjia, double jiaban, double chuchai, String chuchaiRemarks, String deductingProject, BigDecimal deductingSalary, String deductingRemarks, String subsidyProject, BigDecimal subsidySalary, String subsidyRemarks, BigDecimal shebaodanweiheji, BigDecimal shebaogerenheji, String grantRemarks, String bankCardNum, BigDecimal fullReward, BigDecimal ageReward, BigDecimal phoneReward, BigDecimal gongjinjiGongsi, BigDecimal gongjinjiGeren, boolean isSpecial) {
         this.empNo = empNo;
         this.department = department;
         this.position = position;
@@ -97,6 +98,7 @@ public class Employee {
         this.phoneReward = phoneReward;
         this.gongjinjiGongsi = gongjinjiGongsi;
         this.gongjinjiGeren = gongjinjiGeren;
+        this.isSpecial = isSpecial;
     }
 
     /**
@@ -540,6 +542,14 @@ public class Employee {
 
     public void setGongjinjiGeren(BigDecimal gongjinjiGeren) {
         this.gongjinjiGeren = gongjinjiGeren;
+    }
+
+    public boolean isSpecial() {
+        return isSpecial;
+    }
+
+    public void setSpecial(boolean special) {
+        isSpecial = special;
     }
 
     @Override

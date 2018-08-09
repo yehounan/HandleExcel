@@ -140,16 +140,16 @@ public class WriteExcel {
             SalarySummaryDto dto = new SalarySummaryDto();
             List<Employee> temp = map.get(key);
             dto.setDepartment(key);
-            dto.setBeforeTaxSalary(this.sumDecimal(x -> x.getShuiQianSalary(), temp));
+            dto.setBeforeTaxSalary(this.sumDecimal(x -> x.isSpecial() ? x.getHireSalary() : x.getShuiQianSalary(), temp));
             dto.setCompanySocial(this.sumDecimal(x -> x.getShebaodanweiheji(), temp));
             dto.setPersonSocial(this.sumDecimal(x -> x.getShebaogerenheji(), temp));
             dto.setCompanyGGJ(this.sumDecimal(x -> x.getGongjinjiGongsi(), temp));
             dto.setPersonGGJ(this.sumDecimal(x -> x.getGongjinjiGeren(), temp));
-            dto.setContainTaxSalary(this.sumDecimal(x -> x.getJiShuiSalary(), temp));
-            dto.setTax(this.sumDecimal(x -> x.getCqTax().add(x.getChengduGeshui()), temp));
+            dto.setContainTaxSalary(this.sumDecimal(x -> x.isSpecial() ? x.getHireSalary() : x.getJiShuiSalary(), temp));
+            dto.setTax(this.sumDecimal(x -> x.isSpecial() ? BigDecimal.ZERO : x.getCqTax().add(x.getChengduGeshui()), temp));
             dto.setOtherSubsidy(this.sumDecimal(x -> x.getSubsidySalary(), temp));
             dto.setOtherDeductMoney(this.sumDecimal(x -> x.getDeductingSalary(), temp));
-            dto.setShouldSalary(this.sumDecimal(x -> x.getJiShuiSalary().subtract(x.getCqTax().add(x.getChengduGeshui())), temp));
+            dto.setShouldSalary(this.sumDecimal(x -> x.isSpecial() ? x.getHireSalary() : x.getJiShuiSalary().subtract(x.getCqTax().add(x.getChengduGeshui())), temp));
             dtos.add(dto);
         }
         return dtos;
@@ -208,36 +208,70 @@ public class WriteExcel {
 
         for (int i = 0; i < data.size(); i++) {
             Row row = sheet.createRow(i + 3);
-            row.createCell(0).setCellValue(data.get(i).getEmpNo());
-            row.createCell(1).setCellValue(data.get(i).getDepartment());
-            row.createCell(2).setCellValue(data.get(i).getPosition());
-            row.createCell(3).setCellValue(data.get(i).getName());
-            row.createCell(4).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(5).setCellValue(data.get(i).getRemarks());
-            row.createCell(6).setCellValue(data.get(i).getBaseSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(7).setCellValue(data.get(i).getPositionSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(8).setCellValue(data.get(i).getOvertimeSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(9).setCellValue(data.get(i).getLeavedays());
-            row.createCell(10).setCellValue(data.get(i).getScore());
-            row.createCell(11).setCellValue(data.get(i).getAssessmentSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(12).setCellValue(data.get(i).getQingjiaKouKuan().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(13).setCellValue(data.get(i).getFullReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(14).setCellValue(data.get(i).getAgeReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(15).setCellValue(data.get(i).getPhoneReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(16).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(17).setCellValue(data.get(i).getRewardRatio());
-            row.createCell(18).setCellValue(data.get(i).getZongcaiReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(19).setCellValue(data.get(i).getDeductingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(20).setCellValue(data.get(i).getShuiQianSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(25).setCellValue(data.get(i).getSubsidySalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(26).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(27).setCellValue(data.get(i).getCqTax().add(data.get(i).getChengduGeshui()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(28).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(29).setCellValue(data.get(i).getBankCardNum());
+            if (data.get(i).isSpecial()) {
+                row.createCell(0).setCellValue(data.get(i).getEmpNo());
+                row.createCell(1).setCellValue(data.get(i).getDepartment());
+                row.createCell(2).setCellValue(data.get(i).getPosition());
+                row.createCell(3).setCellValue(data.get(i).getName());
+                row.createCell(4).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(5).setCellValue(data.get(i).getRemarks());
+                row.createCell(6).setCellValue(0);
+                row.createCell(7).setCellValue(0);
+                row.createCell(8).setCellValue(0);
+                row.createCell(9).setCellValue(0);
+                row.createCell(10).setCellValue(0);
+                row.createCell(11).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(12).setCellValue(0);
+                row.createCell(13).setCellValue(0);
+                row.createCell(14).setCellValue(0);
+                row.createCell(15).setCellValue(0);
+                row.createCell(16).setCellValue(0);
+                row.createCell(17).setCellValue(0);
+                row.createCell(18).setCellValue(0);
+                row.createCell(19).setCellValue(0);
+                row.createCell(20).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(25).setCellValue(0);
+                row.createCell(26).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(27).setCellValue(0);
+                row.createCell(28).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(29).setCellValue("");
+            } else {
+                row.createCell(0).setCellValue(data.get(i).getEmpNo());
+                row.createCell(1).setCellValue(data.get(i).getDepartment());
+                row.createCell(2).setCellValue(data.get(i).getPosition());
+                row.createCell(3).setCellValue(data.get(i).getName());
+                row.createCell(4).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(5).setCellValue(data.get(i).getRemarks());
+                row.createCell(6).setCellValue(data.get(i).getBaseSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(7).setCellValue(data.get(i).getPositionSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(8).setCellValue(data.get(i).getOvertimeSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(9).setCellValue(data.get(i).getLeavedays());
+                row.createCell(10).setCellValue(data.get(i).getScore());
+                row.createCell(11).setCellValue(data.get(i).getAssessmentSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(12).setCellValue(data.get(i).getQingjiaKouKuan().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(13).setCellValue(data.get(i).getFullReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(14).setCellValue(data.get(i).getAgeReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(15).setCellValue(data.get(i).getPhoneReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(16).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(17).setCellValue(data.get(i).getRewardRatio());
+                row.createCell(18).setCellValue(data.get(i).getZongcaiReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(19).setCellValue(data.get(i).getDeductingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(20).setCellValue(data.get(i).getShuiQianSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(25).setCellValue(data.get(i).getSubsidySalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(26).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(27).setCellValue(data.get(i).getCqTax().add(data.get(i).getChengduGeshui()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(28).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(29).setCellValue(data.get(i).getBankCardNum());
+            }
+
         }
         Row sumRow = sheet.createRow(data.size() + 3);
         sumRow.createCell(0).setCellValue("");
@@ -302,7 +336,11 @@ public class WriteExcel {
     private BigDecimal getShouldSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getJiShuiSalary().subtract(emp.getCqTax().add(emp.getChengduGeshui())));
+            if (emp.isSpecial()) {
+                result = result.add(emp.getHireSalary());
+            } else {
+                result = result.add(emp.getJiShuiSalary().subtract(emp.getCqTax().add(emp.getChengduGeshui())));
+            }
         }
         return result;
     }
@@ -310,7 +348,11 @@ public class WriteExcel {
     private BigDecimal getJiShuiSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getJiShuiSalary());
+            if (emp.isSpecial()) {
+                result = result.add(emp.getHireSalary());
+            } else {
+                result = result.add(emp.getJiShuiSalary());
+            }
         }
         return result;
     }
@@ -318,7 +360,12 @@ public class WriteExcel {
     private BigDecimal getSubsidySalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getSubsidySalary());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getSubsidySalary());
+            }
+
         }
         return result;
     }
@@ -359,7 +406,12 @@ public class WriteExcel {
     private BigDecimal getShuiqianSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getShuiQianSalary());
+            if (emp.isSpecial()) {
+                result = result.add(emp.getHireSalary());
+            } else {
+                result = result.add(emp.getShuiQianSalary());
+            }
+
         }
         return result;
     }
@@ -367,7 +419,11 @@ public class WriteExcel {
     private BigDecimal getDeductingSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getDeductingSalary());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getDeductingSalary());
+            }
         }
         return result;
     }
@@ -375,7 +431,11 @@ public class WriteExcel {
     private BigDecimal getZongcaiRewardTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getZongcaiReward());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getZongcaiReward());
+            }
         }
         return result;
     }
@@ -391,7 +451,11 @@ public class WriteExcel {
     private BigDecimal getCanbuTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getCanbu());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getCanbu());
+            }
         }
         return result;
     }
@@ -399,7 +463,11 @@ public class WriteExcel {
     private BigDecimal getPhoneRewardTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getPhoneReward());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getPhoneReward());
+            }
         }
         return result;
     }
@@ -407,7 +475,11 @@ public class WriteExcel {
     private BigDecimal getAgeRewardTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getAgeReward());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getAgeReward());
+            }
         }
         return result;
     }
@@ -415,7 +487,11 @@ public class WriteExcel {
     private BigDecimal getFullRewardTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getFullReward());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getFullReward());
+            }
         }
         return result;
     }
@@ -423,7 +499,12 @@ public class WriteExcel {
     private BigDecimal getQingjiaKouKuanTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getQingjiaKouKuan());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getQingjiaKouKuan());
+            }
+
         }
         return result;
     }
@@ -454,18 +535,34 @@ public class WriteExcel {
 
         for (int i = 0; i < data.size(); i++) {
             Row row = sheet.createRow(i + 3);
-            row.createCell(0).setCellValue(data.get(i).getDepartment());
-            row.createCell(1).setCellValue(data.get(i).getPosition());
-            row.createCell(2).setCellValue(data.get(i).getName());
-            row.createCell(3).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());//计税工资
-            row.createCell(4).setCellValue(data.get(i).getChengduSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(5).setCellValue(data.get(i).getActualChengduSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(6).setCellValue(data.get(i).getActualChongQingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(7).setCellValue(data.get(i).getChengduGeshui().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(8).setCellValue(data.get(i).getCqTax().setScale(2, BigDecimal.ROUND_HALF_UP).toString());//重庆个税
-            row.createCell(9).setCellValue(data.get(i).getChengduGeshui().add(data.get(i).getCqTax()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(10).setCellValue(data.get(i).getActualChengduSalary().add(data.get(i).getActualChongQingSalary()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(11).setCellValue(data.get(i).getRemarks());
+            if (data.get(i).isSpecial()) {
+                row.createCell(0).setCellValue(data.get(i).getDepartment());
+                row.createCell(1).setCellValue(data.get(i).getPosition());
+                row.createCell(2).setCellValue(data.get(i).getName());
+                row.createCell(3).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());//计税工资
+                row.createCell(4).setCellValue(0);
+                row.createCell(5).setCellValue(0);
+                row.createCell(6).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(7).setCellValue(0);
+                row.createCell(8).setCellValue(0);//重庆个税
+                row.createCell(9).setCellValue(0);
+                row.createCell(10).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(11).setCellValue(data.get(i).getRemarks());
+            } else {
+                row.createCell(0).setCellValue(data.get(i).getDepartment());
+                row.createCell(1).setCellValue(data.get(i).getPosition());
+                row.createCell(2).setCellValue(data.get(i).getName());
+                row.createCell(3).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());//计税工资
+                row.createCell(4).setCellValue(data.get(i).getChengduSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(5).setCellValue(data.get(i).getActualChengduSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(6).setCellValue(data.get(i).getActualChongQingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(7).setCellValue(data.get(i).getChengduGeshui().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(8).setCellValue(data.get(i).getCqTax().setScale(2, BigDecimal.ROUND_HALF_UP).toString());//重庆个税
+                row.createCell(9).setCellValue(data.get(i).getChengduGeshui().add(data.get(i).getCqTax()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(10).setCellValue(data.get(i).getActualChengduSalary().add(data.get(i).getActualChongQingSalary()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(11).setCellValue(data.get(i).getRemarks());
+            }
+
         }
 
         Row sumRow = sheet.createRow(data.size() + 3);
@@ -498,7 +595,12 @@ public class WriteExcel {
     private BigDecimal getJishuiTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getJiShuiSalary());
+            if (emp.isSpecial()) {
+                result = result.add(emp.getHireSalary());
+            } else {
+                result = result.add(emp.getJiShuiSalary());
+            }
+
         }
         return result;
     }
@@ -506,7 +608,11 @@ public class WriteExcel {
     private BigDecimal getActualChengduSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getActualChengduSalary());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getActualChengduSalary());
+            }
         }
         return result;
     }
@@ -514,7 +620,11 @@ public class WriteExcel {
     private BigDecimal getChengduSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getChengduSalary());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getChengduSalary());
+            }
         }
         return result;
     }
@@ -522,7 +632,12 @@ public class WriteExcel {
     private BigDecimal getActualChongQingSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getActualChongQingSalary());
+            if (emp.isSpecial()) {
+                result = result.add(emp.getHireSalary());
+            } else {
+                result = result.add(emp.getActualChongQingSalary());
+            }
+
         }
         return result;
     }
@@ -530,7 +645,11 @@ public class WriteExcel {
     private BigDecimal getChengduGeShuiTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getChengduGeshui());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getChengduGeshui());
+            }
         }
         return result;
     }
@@ -538,7 +657,11 @@ public class WriteExcel {
     private BigDecimal getChongqingGeShuiTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getCqTax());
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getCqTax());
+            }
         }
         return result;
     }
@@ -546,7 +669,12 @@ public class WriteExcel {
     private BigDecimal getGeShuiTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getCqTax().add(emp.getChengduGeshui()));
+            if (emp.isSpecial()) {
+                result = result.add(BigDecimal.ZERO);
+            } else {
+                result = result.add(emp.getCqTax().add(emp.getChengduGeshui()));
+            }
+
         }
         return result;
     }
@@ -554,7 +682,11 @@ public class WriteExcel {
     private BigDecimal getActualSalaryTotal() {
         BigDecimal result = BigDecimal.ZERO;
         for (Employee emp : this.data) {
-            result = result.add(emp.getActualChengduSalary().add(emp.getActualChongQingSalary()));
+            if (emp.isSpecial()) {
+                result = result.add(emp.getHireSalary());
+            } else {
+                result = result.add(emp.getActualChengduSalary().add(emp.getActualChongQingSalary()));
+            }
         }
         return result;
     }
@@ -627,15 +759,29 @@ public class WriteExcel {
 
         for (int i = 0; i < data.size(); i++) {
             Row row = sheet.createRow(i + 3);
-            row.createCell(0).setCellValue(i);
-            row.createCell(1).setCellValue(data.get(i).getDepartment());
-            row.createCell(2).setCellValue(data.get(i).getPosition());
-            row.createCell(3).setCellValue(data.get(i).getName());
-            row.createCell(4).setCellValue(data.get(i).getAttendanceDays());
-            row.createCell(5).setCellValue(data.get(i).getActualChuqinDays());//实际出勤天数
-            row.createCell(6).setCellValue(Math.floor(data.get(i).getActualChuqinDays() + 0.4));//实际出勤天数去掉小数点
-            row.createCell(7).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(8).setCellValue("");//备注
+            if (data.get(i).isSpecial()) {
+                row.createCell(0).setCellValue(i);
+                row.createCell(1).setCellValue(data.get(i).getDepartment());
+                row.createCell(2).setCellValue(data.get(i).getPosition());
+                row.createCell(3).setCellValue(data.get(i).getName());
+                row.createCell(4).setCellValue(0);
+                row.createCell(5).setCellValue(0);//实际出勤天数
+                row.createCell(6).setCellValue(0);//实际出勤天数去掉小数点
+                row.createCell(7).setCellValue(0);
+                row.createCell(8).setCellValue("");//备注
+
+            } else {
+                row.createCell(0).setCellValue(i);
+                row.createCell(1).setCellValue(data.get(i).getDepartment());
+                row.createCell(2).setCellValue(data.get(i).getPosition());
+                row.createCell(3).setCellValue(data.get(i).getName());
+                row.createCell(4).setCellValue(data.get(i).getAttendanceDays());
+                row.createCell(5).setCellValue(data.get(i).getActualChuqinDays());//实际出勤天数
+                row.createCell(6).setCellValue(Math.floor(data.get(i).getActualChuqinDays() + 0.4));//实际出勤天数去掉小数点
+                row.createCell(7).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(8).setCellValue("");//备注
+            }
+
         }
 
         for (int i = 2; i < data.size() + 3; i++) {
@@ -733,35 +879,68 @@ public class WriteExcel {
 
         for (int i = 0; i < data.size(); i++) {
             Row row = sheet.createRow(i + 1);
-            row.createCell(0).setCellValue(data.get(i).getName());
-            row.createCell(1).setCellValue(data.get(i).getEmpNo());
-            row.createCell(2).setCellValue(year);
-            row.createCell(3).setCellValue(month);
-            row.createCell(4).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(5).setCellValue(data.get(i).getRemarks());
-            row.createCell(6).setCellValue(data.get(i).getBaseSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(7).setCellValue(data.get(i).getPositionSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(8).setCellValue(data.get(i).getOvertimeSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(9).setCellValue(data.get(i).getLeavedays());
-            row.createCell(10).setCellValue(data.get(i).getScore());
-            row.createCell(11).setCellValue(data.get(i).getAssessmentSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(12).setCellValue(data.get(i).getQingjiaKouKuan().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(13).setCellValue(data.get(i).getFullReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(14).setCellValue(data.get(i).getAgeReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(15).setCellValue(data.get(i).getPhoneReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(16).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(17).setCellValue(data.get(i).getRewardRatio());
-            row.createCell(18).setCellValue(data.get(i).getZongcaiReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(19).setCellValue(data.get(i).getDeductingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(20).setCellValue(data.get(i).getShuiQianSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(25).setCellValue(data.get(i).getSubsidySalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(26).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(27).setCellValue(data.get(i).getCqTax().add(data.get(i).getChengduGeshui()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            row.createCell(28).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            if (data.get(i).isSpecial()) {
+                row.createCell(0).setCellValue(data.get(i).getName());
+                row.createCell(1).setCellValue(data.get(i).getEmpNo());
+                row.createCell(2).setCellValue(year);
+                row.createCell(3).setCellValue(month);
+                row.createCell(4).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(5).setCellValue(data.get(i).getRemarks());
+                row.createCell(6).setCellValue(0);
+                row.createCell(7).setCellValue(0);
+                row.createCell(8).setCellValue(0);
+                row.createCell(9).setCellValue(0);
+                row.createCell(10).setCellValue(0);
+                row.createCell(11).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(12).setCellValue(0);
+                row.createCell(13).setCellValue(0);
+                row.createCell(14).setCellValue(0);
+                row.createCell(15).setCellValue(0);
+                row.createCell(16).setCellValue(0);
+                row.createCell(17).setCellValue(0);
+                row.createCell(18).setCellValue(0);
+                row.createCell(19).setCellValue(0);
+                row.createCell(20).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(25).setCellValue(0);
+                row.createCell(26).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(27).setCellValue(0);
+                row.createCell(28).setCellValue(data.get(i).getHireSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            } else {
+                row.createCell(0).setCellValue(data.get(i).getName());
+                row.createCell(1).setCellValue(data.get(i).getEmpNo());
+                row.createCell(2).setCellValue(year);
+                row.createCell(3).setCellValue(month);
+                row.createCell(4).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(5).setCellValue(data.get(i).getRemarks());
+                row.createCell(6).setCellValue(data.get(i).getBaseSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(7).setCellValue(data.get(i).getPositionSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(8).setCellValue(data.get(i).getOvertimeSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(9).setCellValue(data.get(i).getLeavedays());
+                row.createCell(10).setCellValue(data.get(i).getScore());
+                row.createCell(11).setCellValue(data.get(i).getAssessmentSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(12).setCellValue(data.get(i).getQingjiaKouKuan().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(13).setCellValue(data.get(i).getFullReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(14).setCellValue(data.get(i).getAgeReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(15).setCellValue(data.get(i).getPhoneReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(16).setCellValue(data.get(i).getCanbu().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(17).setCellValue(data.get(i).getRewardRatio());
+                row.createCell(18).setCellValue(data.get(i).getZongcaiReward().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(19).setCellValue(data.get(i).getDeductingSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(20).setCellValue(data.get(i).getShuiQianSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(21).setCellValue(data.get(i).getShebaodanweiheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(22).setCellValue(data.get(i).getShebaogerenheji().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(23).setCellValue(data.get(i).getGongjinjiGongsi().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(24).setCellValue(data.get(i).getGongjinjiGeren().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(25).setCellValue(data.get(i).getSubsidySalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(26).setCellValue(data.get(i).getJiShuiSalary().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(27).setCellValue(data.get(i).getCqTax().add(data.get(i).getChengduGeshui()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                row.createCell(28).setCellValue(data.get(i).getJiShuiSalary().subtract(data.get(i).getCqTax().add(data.get(i).getChengduGeshui())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            }
+
         }
 
         for (int i = 0; i < data.size() + 1; i++) {
