@@ -64,6 +64,7 @@ public class WriteExcel {
         cellStyle.setBorderRight(BorderStyle.THIN);//右边框
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        cellStyle.setWrapText(true);
         return cellStyle;
     }
 
@@ -173,7 +174,7 @@ public class WriteExcel {
 
 
     private void createSalaryDetailSheet(HSSFWorkbook workBook, HSSFSheet sheet) {
-        this.setSheetTitle(workBook, sheet, 29, month + "月份工资明细表");
+        this.setSheetTitle(workBook, sheet, 28, month + "月份工资明细表");
         Row title = sheet.createRow(2);
         title.createCell(0).setCellValue("工号");
         title.createCell(1).setCellValue("部门");
@@ -311,7 +312,7 @@ public class WriteExcel {
         sumInfo.createCell(5).setCellValue(this.getShouldSalaryTotal().setScale(2, BigDecimal.ROUND_HALF_UP).toString());
 
         for (int i = 2; i < data.size() + 4; i++) {
-            for (int j = 0; j < 30; j++) {
+            for (int j = 0; j < 29; j++) {
                 sheet.getRow(i).getCell(j).setCellStyle(baseCellStyle(workBook));
             }
         }

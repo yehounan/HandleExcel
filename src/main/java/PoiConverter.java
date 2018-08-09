@@ -9,11 +9,20 @@ import java.util.Scanner;
 public class PoiConverter {
 
     private static final String importPath = "D://yls/";
-    private static final String fileName = "易联社工资基本信息模板.xls";
-    private static final String outPath = "D://yls/" + Calendar.getInstance().get(Calendar.MONTH) + "月份易联社工资.xls";
+    private static final String fileName = "工资基本信息模板.xls";
+    private static String outPath = "D://yls/" + Calendar.getInstance().get(Calendar.MONTH) + "月份易联社工资.xls";
     private static List<Employee> employees;
 
     public static void main(String[] args) {
+
+        Scanner inupt = new Scanner(System.in);
+        System.out.println("请输入公司名称【易联社】或【华创】");
+        String feedback = inupt.next();
+        while (!"易联社".equals(feedback) && !"华创".equals(feedback)) {
+            System.out.println("请输入公司名称【易联社】或【华创】");
+            feedback = inupt.next();
+        }
+        outPath = "D://yls/" + Calendar.getInstance().get(Calendar.MONTH) + "月份" + feedback + "工资.xls";
         File file1 = new File(importPath);
         if (!file1.exists()) {
             file1.mkdirs();

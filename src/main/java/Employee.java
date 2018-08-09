@@ -197,7 +197,7 @@ public class Employee {
      */
     public double getActualChuqinDays() {
         return this.attendanceDays - this.legalHolidays - this.shijia - this.bingjia - this.tiaoxiu
-                - this.hunjia - this.sangjia - this.chanjia - this.gongshangjia - this.nianjia + this.jiaban;
+                - this.hunjia - this.sangjia - this.chanjia - this.gongshangjia - this.nianjia - this.neglectDays + this.jiaban;
     }
 
     public String getEmpNo() {
